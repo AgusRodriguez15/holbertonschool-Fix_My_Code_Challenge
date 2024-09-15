@@ -11,57 +11,48 @@
  */
 int delete_dnodeint_at_index(dlistint_t **head, unsigned int index)
 {
-    dlistint_t *tmp;
-    dlistint_t *node_to_delete;
-    unsigned int p;
+	dlistint_t *saved_head;
+	dlistint_t *tmp;
+	unsigned int p;
 
-    if (head == NULL || *head == NULL)
-    {
-        return (-1);
-    }
-
-    node_to_delete = *head;
-
-    /* Traverse to the node at the given index */
-    for (p = 0; p < index; p++)
-    {
-        if (node_to_delete == NULL)
+	if (*head == NULL)
+	{
+		return (-1);
+	}
+	saved_head = *head;
+	p = 0;
+	while (p < index && *head != NULL)
+	{
+		*head = (*head)->next;
+		p++;
+	}
+	if (p != index)
+	{
+		*head = saved_head;
+		return (-1);
+	}
+	if (0 == index)
+	{
+		tmp = (*head)->next;
+		free(*head);
+		*head = tmp;
+		if (tmp != NULL)
+		{
+			tmp->prev = NULL;
+		}
+	}
+	else
+	{
+        if ((*head)->prev)
         {
-            return (-1);
+            (*head)->prev->next = (*head)->next;
         }
-        node_to_delete = node_to_delete->next;
-    }
-
-    /* Check if node_to_delete is NULL, indicating that index is out of range */
-    if (node_to_delete == NULL)
-    {
-        return (-1);
-    }
-
-    /* Handle the case when the node to delete is the head of the list */
-    if (node_to_delete == *head)
-    {
-        *head = node_to_delete->next;
-        if (*head != NULL)
+        if ((*head)->next)
         {
-            (*head)->prev = NULL;
+			(*head)->next->prev = (*head)->prev;
         }
-    }
-    else
-    {
-        /* Adjust the pointers of the previous and next nodes */
-        if (node_to_delete->prev != NULL)
-        {
-            node_to_delete->prev->next = node_to_delete->next;
-        }
-        if (node_to_delete->next != NULL)
-        {
-            node_to_delete->next->prev = node_to_delete->prev;
-        }
-    }
-
-    /* Free the memory of the node to delete */
-    free(node_to_delete);
-
-    return (1);
+        free(*head);
+        *head = saved_head;
+	}
+	return (1);
 }
